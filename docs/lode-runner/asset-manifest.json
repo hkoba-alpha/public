@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/public/lode-runner/static/css/main.db62923b.css",
+    "main.js": "/public/lode-runner/static/js/main.bac5920a.js",
+    "static/js/787.d458b7da.chunk.js": "/public/lode-runner/static/js/787.d458b7da.chunk.js",
+    "index.html": "/public/lode-runner/index.html",
+    "main.db62923b.css.map": "/public/lode-runner/static/css/main.db62923b.css.map",
+    "main.bac5920a.js.map": "/public/lode-runner/static/js/main.bac5920a.js.map",
+    "787.d458b7da.chunk.js.map": "/public/lode-runner/static/js/787.d458b7da.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.db62923b.css",
+    "static/js/main.bac5920a.js"
+  ]
+}
