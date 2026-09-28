@@ -132,8 +132,8 @@ var r = "[CHR1] CH16\n0000333333010000\n0003333333100000\n0000222311330000\n0000
 		return n !== l.BLOCK && n !== l.STONE && n !== l.ENEMY && n !== l.STEP;
 	}
 	getSprite() {
-		let e = this.iconDataMap.get(this.iconData.getIconType()) || this.iconDataMap.get("Walk"), t = e[this.iconData.getIconIndex() % e.length] * 4, n = this.blockX * 16 + this.subX * 2 - 6, r = n + 8, i = this.blockY * 16 + this.subY * 2 - 6, a = !this.iconData.isRightFlag();
-		return a || ([n, r] = [r, n]), [{
+		let e = this.iconDataMap.get(this.iconData.getIconType()) || this.iconDataMap.get("Walk"), t = e[this.iconData.getIconIndex() % e.length] * 4, n = this.blockX * 16 + this.subX * 2 - 6, r = n + 8, i = this.blockY * 16 + this.subY * 2 - 6, a = this.iconData.isRightFlag();
+		return a && ([n, r] = [r, n]), [{
 			x: n,
 			y: i,
 			tileIndex: t,
@@ -1009,8 +1009,9 @@ var m = 64, h = {
 	}
 }, O = class {
 	stage;
+	stepCounter;
 	constructor(e) {
-		this.stage = e;
+		this.stage = e, this.stepCounter = 0;
 	}
 	onUpdate(t, n) {
 		let r = t.getPad(0);
@@ -1018,7 +1019,8 @@ var m = 64, h = {
 			this.stage.resume(), t.exitMode();
 			return;
 		}
-		r.isDown(e.LEFT) && this.stage.scrollLeft(), r.isDown(e.RIGHT) && this.stage.scrollRight(), r.isDown(e.UP) && this.stage.scrollUp(), r.isDown(e.DOWN) && this.stage.scrollDown(), this.stage.drawStage(t.ppu, !1);
+		for (this.stepCounter += T * 2; this.stepCounter >= E;) this.stepCounter -= E, r.isDown(e.LEFT) && this.stage.scrollLeft(), r.isDown(e.RIGHT) && this.stage.scrollRight(), r.isDown(e.UP) && this.stage.scrollUp(), r.isDown(e.DOWN) && this.stage.scrollDown();
+		this.stage.drawStage(t.ppu, !1);
 	}
 }, k = class {
 	stage;
