@@ -1721,7 +1721,12 @@ var L = {
 			bgEnabled: !0,
 			spriteEnabled: !0,
 			nameTableIndex: 0
-		}), this.spriteGroup = [
+		});
+		for (let t = 2; t < 3; t++) {
+			let t = e.ppu.getNameTable(0);
+			for (let e = 0; e < 32; e++) t.write(e, 0);
+		}
+		this.spriteGroup = [
 			this.cupsule.sprite,
 			this.bomber.sprite,
 			this.enemy.missle.sprite
