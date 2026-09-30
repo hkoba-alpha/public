@@ -146,11 +146,11 @@ var s = [
 	hiScore;
 	laserDraw;
 	frameChange;
-	constructor() {
-		this.progress = 0, this.laserDraw = [], this.frameChange = [], this.playerPos = {
+	constructor(e) {
+		this.progress = 0, this.laserDraw = e?.laserDraw || [], this.frameChange = [], this.playerPos = e?.playerPos || {
 			x: 72,
 			y: 96
-		}, this.scroll = !1, this.chrRomIndex = 2, this.blockFlags = [], this.bgText = [], this.score = 0, this.hiScore = 0;
+		}, this.scroll = !1, this.chrRomIndex = 0, this.blockFlags = [], this.bgText = [], this.score = e?.score || 0, this.hiScore = e?.hiScore || 0;
 		for (let e = 0; e < 32; e++) this.blockFlags.push(Array(13).fill(0)), this.bgText.push(String.fromCharCode(...Array(13).fill(0))), this.bgText.push(String.fromCharCode(...Array(13).fill(0)));
 	}
 	step() {
@@ -172,7 +172,7 @@ var s = [
 				x: n,
 				y: 12
 			});
-		}), this.laserDraw = [];
+		});
 	}
 	drawLaser(e, t, n) {
 		let r = this.progress >> 3 & 63, i = this.progress + 255 + 8 >> 3 & 63, a = r, o = n.y - 4 + 1 >> 3, s = t * 64 + 32;
@@ -744,7 +744,80 @@ var b = class {
 	hasShield() {
 		return !1;
 	}
-}, x = class {
+}, x = [
+	{
+		dx: 0,
+		dy: 16,
+		attributes: 2,
+		tileIndex: 53
+	},
+	{
+		dx: 8,
+		dy: 8,
+		attributes: 2,
+		tileIndex: 55
+	},
+	{
+		dx: 8,
+		dy: 24,
+		attributes: 130,
+		tileIndex: 55
+	},
+	{
+		dx: 16,
+		dy: 0,
+		attributes: 2,
+		tileIndex: 57
+	},
+	{
+		dx: 16,
+		dy: 16,
+		attributes: 2,
+		tileIndex: 59
+	},
+	{
+		dx: 16,
+		dy: 32,
+		attributes: 130,
+		tileIndex: 57
+	},
+	{
+		dx: 24,
+		dy: 0,
+		attributes: 2,
+		tileIndex: 65
+	},
+	{
+		dx: 24,
+		dy: 16,
+		attributes: 2,
+		tileIndex: 67
+	},
+	{
+		dx: 24,
+		dy: 32,
+		attributes: 130,
+		tileIndex: 65
+	},
+	{
+		dx: 32,
+		dy: 0,
+		attributes: 2,
+		tileIndex: 69
+	},
+	{
+		dx: 32,
+		dy: 16,
+		attributes: 2,
+		tileIndex: 71
+	},
+	{
+		dx: 32,
+		dy: 32,
+		attributes: 130,
+		tileIndex: 69
+	}
+], S = class {
 	enemyList = [];
 	entryList = [];
 	removeList = [];
@@ -753,7 +826,7 @@ var b = class {
 	plusPoint;
 	missle;
 	constructor() {
-		this.plusPoint = 0, this.missle = new C();
+		this.plusPoint = 0, this.missle = new E();
 	}
 	entry(e) {
 		return this.entryList.push(e), this;
@@ -814,7 +887,136 @@ var b = class {
 	addMissle(e, t) {
 		this.missle.addMissle(e, t);
 	}
-}, S = class e extends b {
+}, C = class e extends b {
+	static spriteItem = [{
+		dx: 0,
+		dy: -2,
+		attributes: 1,
+		tileIndex: 14
+	}, {
+		dx: 8,
+		dy: -2,
+		attributes: 1,
+		tileIndex: 16
+	}];
+	constructor(t, n) {
+		super(), this.sprite.x = t, this.sprite.y = n, this.sprite.width = 16, this.sprite.height = 4, this.spriteItems = e.spriteItem;
+	}
+	onStepFrame(e, t) {
+		this.sprite.x -= 4, this.sprite.x <= -8 && e.remove(this);
+	}
+	checkHit(e, t) {
+		return t.type !== "player" && t.type !== "barrier" ? !1 : super.checkHit(e, t);
+	}
+	onHit(e, t) {
+		t.type === "barrier" && e.remove(this);
+	}
+}, w = class extends b {
+	param;
+	life;
+	count;
+	ay;
+	hitArea;
+	constructor() {
+		super(), this.param = {
+			move: 30,
+			wait: 40,
+			laser: 50
+		}, this.life = {
+			timer: 2400,
+			shield: 3,
+			count: 8
+		}, this.count = {
+			move: 0,
+			laser: 50
+		}, this.spriteItems = x.map((e) => ({ ...e })), this.sprite.x = 256, this.sprite.y = 100, this.ay = 0, this.hitArea = [
+			{
+				x1: 4,
+				y1: 18,
+				x2: 8,
+				y2: 30
+			},
+			{
+				x1: 8,
+				y1: 18,
+				x2: 12,
+				y2: 30
+			},
+			{
+				x1: 12,
+				y1: 18,
+				x2: 16,
+				y2: 30
+			},
+			{
+				x1: 16,
+				y1: 16,
+				x2: 32,
+				y2: 32
+			},
+			{
+				x1: 0,
+				y1: 15,
+				x2: 48,
+				y2: 18
+			},
+			{
+				x1: 0,
+				y1: 30,
+				x2: 48,
+				y2: 33
+			},
+			{
+				x1: 12,
+				y1: 0,
+				x2: 48,
+				y2: 16
+			},
+			{
+				x1: 12,
+				y1: 32,
+				x2: 48,
+				y2: 48
+			}
+		];
+	}
+	onStepFrame(e, t) {
+		if (this.sprite.x > 155) {
+			this.sprite.x--;
+			return;
+		}
+		this.ay === 0 ? (this.count.move--, this.count.move <= 0 && (t.playerPos.y < this.sprite.y + 16 ? this.ay = -2 : this.ay = 2, this.count.move = this.param.move)) : (this.sprite.y += this.ay, this.sprite.y < 2 ? this.sprite.y = 2 : this.sprite.y > 146 && (this.sprite.y = 146), this.count.move--, this.count.move <= 0 && (this.ay = 0, this.count.move = this.param.wait)), this.count.laser--, this.count.laser <= 0 && (e.entry(new C(this.sprite.x + 8, this.sprite.y + 3)), e.entry(new C(this.sprite.x - 8, this.sprite.y + 16)), e.entry(new C(this.sprite.x - 8, this.sprite.y + 28)), e.entry(new C(this.sprite.x + 8, this.sprite.y + 41)), this.count.laser = this.param.laser), this.life.timer--, this.life.timer <= 0 && (this.life.shield = this.life.count = 0, e.remove(this).addBomb(this.sprite.x + 16, this.sprite.y + 16, "large"));
+	}
+	checkHit(e, t) {
+		for (let n = 0; n < this.hitArea.length; n++) {
+			let r = this.hitArea[n];
+			if (t.x < this.sprite.x + r.x2 && this.sprite.x + r.x1 < t.x + t.width && t.y < this.sprite.y + r.y2 && this.sprite.y + r.y1 < t.y + t.height) return n == 0 && this.sprite.x <= 155 && t.type !== "player" && t.type !== "barrier" && this.onHit(e, t), !0;
+		}
+		return !1;
+	}
+	onHit(e, t) {
+		if (this.life.count--, this.life.count <= 0) switch (this.life.shield--, this.life.shield) {
+			case 2:
+				this.spriteItems[0].tileIndex = 187, this.spriteItems[1].tileIndex = 197, this.spriteItems[2].tileIndex = 197, this.life.count = 8;
+				break;
+			case 1:
+				this.spriteItems[1].tileIndex = 199, this.spriteItems[2].tileIndex = 199, this.life.count = 8;
+				break;
+			case 0:
+				this.spriteItems[1].tileIndex = 201, this.spriteItems[2].tileIndex = 201, this.life.count = 1;
+				break;
+			default:
+				this.life.timer = 0, e.entry(new C(this.sprite.x + 8, this.sprite.y + 3));
+				break;
+		}
+	}
+	hasShield() {
+		return !0;
+	}
+	isAlive() {
+		return this.life.timer > 0;
+	}
+}, T = class e extends b {
 	mode;
 	data;
 	static spriteItems = [
@@ -872,7 +1074,7 @@ var b = class {
 	onHit(e, t) {
 		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "small").addPoint(100), this.data.count--, this.data.count === 0 && e.dropCupsule(this.sprite.x, this.sprite.y);
 	}
-}, C = class extends b {
+}, E = class extends b {
 	missles = [];
 	constructor() {
 		super(), this.sprite.x = 0, this.sprite.y = 0, this.sprite.width = 0, this.sprite.height = 0;
@@ -912,7 +1114,7 @@ var b = class {
 			ay: Math.round(r * 16 * a / i)
 		});
 	}
-}, w = class e extends b {
+}, ee = class e extends b {
 	static spriteItems = [
 		[{
 			dx: 0,
@@ -958,7 +1160,7 @@ var b = class {
 	onHit(e, t) {
 		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal").addPoint(100);
 	}
-}, T = class extends b {
+}, D = class extends b {
 	startPos;
 	power;
 	constructor(e, t) {
@@ -985,18 +1187,20 @@ var b = class {
 	onHit(e, t) {
 		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal").addPoint(100), this.power && e.dropCupsule(this.sprite.x, this.sprite.y);
 	}
-}, E = class extends b {
+}, O = class extends b {
 	timing;
-	constructor(e, t) {
-		super(), this.sprite.y = e, this.sprite.x = 256, this.spriteItems = [{
+	constructor(e, t, n) {
+		super(), this.sprite.y = e, this.sprite.x = 256;
+		let r = n ? 3 : 2;
+		this.spriteItems = [{
 			dx: 0,
 			dy: 0,
-			attributes: 34,
+			attributes: r | 32,
 			tileIndex: 215
 		}, {
 			dx: 8,
 			dy: 0,
-			attributes: 34,
+			attributes: r | 32,
 			tileIndex: 207
 		}], this.sprite.verticalFlip = t, this.timing = 150;
 	}
@@ -1013,9 +1217,9 @@ var b = class {
 		this.sprite.horizontalFlip = n > 0, Math.abs(n) * 4 < Math.abs(r) ? this.spriteItems[0].tileIndex = 217 : this.spriteItems[0].tileIndex = 215;
 	}
 	onHit(e, t) {
-		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal").addPoint(100);
+		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal").addPoint(100), (this.spriteItems[0].attributes & 3) == 3 && e.dropCupsule(this.sprite.x, this.sprite.y);
 	}
-}, D = class extends b {
+}, k = class extends b {
 	mode = 1;
 	count = 64;
 	rest = 4;
@@ -1046,13 +1250,13 @@ var b = class {
 		}
 		if (this.mode === 0) {
 			let e = t.playerPos.x - this.sprite.x;
-			this.sprite.horizontalFlip = e < 0, this.spriteItems[0].tileIndex = 61, this.spriteItems[1].tileIndex = 63;
+			this.sprite.horizontalFlip = e > 0, this.spriteItems[0].tileIndex = 61, this.spriteItems[1].tileIndex = 63;
 		} else this.sprite.horizontalFlip = this.mode > 0, Math.ceil(this.clock / 6) & 1 ? (this.spriteItems[0].tileIndex = 53, this.spriteItems[1].tileIndex = 55) : (this.spriteItems[0].tileIndex = 57, this.spriteItems[1].tileIndex = 59);
 	}
 	onHit(e, t) {
 		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal").addPoint(100);
 	}
-}, O = class e extends b {
+}, A = class e extends b {
 	baseY;
 	count = 0;
 	addX = -2;
@@ -1117,7 +1321,7 @@ var b = class {
 	onHit(e, t) {
 		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal").addPoint(100), this.power && e.dropCupsule(this.sprite.x, this.sprite.y);
 	}
-}, k = class extends b {
+}, j = class extends b {
 	life;
 	rushList = [];
 	constructor(e, t) {
@@ -1175,7 +1379,7 @@ var b = class {
 		}
 		if (this.rushList.length > 0) {
 			let t = this.rushList[0];
-			t.wait--, t.wait <= 0 && (t.wait = t.interval, t.count--, e.entry(new A(this.sprite.x + 8, this.sprite.y + 8, this.sprite.verticalFlip ? 2 : -2)), t.count === 0 && this.rushList.splice(0, 1));
+			t.wait--, t.wait <= 0 && (t.wait = t.interval, t.count--, e.entry(new M(this.sprite.x + 8, this.sprite.y + 8, this.sprite.verticalFlip ? 2 : -2)), t.count === 0 && this.rushList.splice(0, 1));
 		}
 	}
 	onHit(e, t) {
@@ -1192,7 +1396,7 @@ var b = class {
 	hasShield() {
 		return this.life > 0;
 	}
-}, A = class e extends b {
+}, M = class e extends b {
 	mode;
 	static spriteItems = [];
 	constructor(t, n, r) {
@@ -1224,10 +1428,57 @@ var b = class {
 	onHit(e, t) {
 		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal").addPoint(100);
 	}
-}, j = "#\n00,00,00000000\n0C,00,3c000000\n1C,00,003c0000\n3D,10,0000003d\n0E,10,3e000000\n1E,10,003e0000\n3B,00,0000003b\n0B,00,3b000000\n2F,10,00003f00\n1B,00,003b0000\n0F,10,3f000000\n0D,00,3d000000\n#\nbb,3f,ddddbbbc\nbd,3f,ddddbdbe\nbf,3f,ddddbfc0\nc1,3f,ddddc1c2\nc3,3f,ddddc3c4\nb1,3f,b1b2dcdc\nb3,3f,b3b4dcdc\nb5,3f,b5b6dcdc\nb7,3f,b7b8dcdc\nb9,3f,b9badcdc\n20,20,20212425\n22,20,22232627\n98,3f,9899dcdc\n9a,3f,9a9bdcdc\nad,3f,adaedcdc\n9c,3f,9c9ddcdc\n8b,3e,008b9192\n8c,3f,8c8d9394\n8e,3f,8e8f8495\n90,3d,90009685\n82,3f,82838687\n84,3f,8485af89\n80,38,00000080\n81,34,00008100\n8a,34,00008a00\nfc,3f,ddddfcfd\nfe,3f,ddddfeff\nf8,30,f8f90000\nfa,31,fafb0000\n7a,3e,007aa6a7\na7,3f,a75adcdc\n61,38,00000061\n7b,3f,7b7ca8a9\n5b,3f,5b5cdcdc\n86,3f,86877273\n7d,3f,7d7eaaab\n5d,3f,5d5edcdc\naf,3f,af896776\n7f,3f,7f33ac84\nd9,3f,d988dcdc\n8A,35,8a003000\n34,3f,3435adae\n5f,3f,5fd1dcdc\n36,3d,3600afb0\nd2,3f,d2d8dcdc\n8O,3e,00808283\n8I,3d,81008485\n9e,3e,009ea6a7\n91,3e,91929899\n9f,3f,9fa0a8a9\n8C,3f,86878c8d\n93,3f,93949a9b\na1,3f,a1a2aaab\n88,3f,88898e8f\n95,3f,8495afae\na3,3f,a3d1ac84\n8^,35,8a009000\n96,3f,96859c9d\na4,3f,5fa4adae\na5,3d,a500afb0\n8B,38,0000008b\nd4,3b,d4d500ce\nd6,3f,d6d7cfd0\nca,3f,cacbc7c8\nc5,32,00c50000\n8F,3f,8e8f8895\nd8,3f,88d8d1d2\ncc,3f,88ccdbc9\nc6,31,c6000000\n9O,3d,90005685\nD9,37,d9c9d300\ncd,31,cd000000\n", M = "[0]\n00,00,3D,00,0E,00,3D,00,0E,3B,00,00,00\n0F,00,0C,00,00,00,0C,00,00,00,00,1E,00\n00,00,0E,00,00,3B,00,00,00,00,00,0D,00\n00,00,00,2F,00,00,00,2F,00,2F,00,00,0E\n00,3B,00,00,3D,00,00,3B,00,00,0E,00,00\n00,00,00,00,0C,2F,00,00,00,00,00,1E,00\n3D,00,0E,00,00,00,0E,00,00,00,00,00,00\n00,00,00,2F,00,00,00,2F,00,00,00,00,0E\n00,00,00,00,3D,00,3D,3B,00,00,3D,00,00\n00,2F,00,00,00,00,0C,00,00,00,0C,1E,00\n0B,00,3D,00,0E,00,0E,00,00,00,1B,0D,00\n00,00,0C,00,00,00,00,2F,00,00,00,00,0E\n3D,00,00,00,0E,3B,00,00,3D,00,00,00,00\n00,2F,00,00,00,00,00,00,0C,00,00,00,0E\n3B,00,00,00,3D,00,0E,00,00,3B,00,3D,00\n00,00,00,00,00,00,00,2F,00,00,00,1E,00\n";
+}, N = class e extends b {
+	static spriteItems = [{
+		dx: 0,
+		dy: 0,
+		attributes: 35,
+		tileIndex: 189
+	}, {
+		dx: 8,
+		dy: 0,
+		attributes: 35,
+		tileIndex: 191
+	}];
+	pos;
+	constructor(t, n, r) {
+		super(), this.sprite.x = t, this.sprite.y = n;
+		let i = r ? 180 : 20, a = 25 + Math.random() * 5, o = a * (a + 1) / 2, s = (i - n) * (Math.random() * .4 + .6) / o * a * 16, c = -s / a, l = Math.random() * 300 - 30, u = Math.round((l - t) / a / 2 * 16);
+		this.pos = {
+			x: t << 4,
+			y: n << 4,
+			ax: u,
+			ay: Math.round(s),
+			g: Math.round(c)
+		}, this.spriteItems = e.spriteItems;
+	}
+	onStepFrame(e, t) {
+		this.pos.x += this.pos.ax, this.pos.y += this.pos.ay, this.pos.ay += this.pos.g, this.sprite.x = Math.round(this.pos.x / 16), this.sprite.y = Math.round(this.pos.y / 16), (this.sprite.x <= -8 || this.sprite.x >= 256 || this.sprite.y <= -8 || this.sprite.y >= 204 || t.isBlock(this.sprite.x + 8, this.sprite.y + 8)) && e.remove(this);
+	}
+	onHit(e, t) {
+		e.remove(this).addBomb(this.sprite.x, this.sprite.y, "normal");
+	}
+}, P = class extends b {
+	count;
+	reverseFlag;
+	constructor(e, t, n, r) {
+		super(), this.sprite.x = e, this.sprite.y = t, this.sprite.width = 16, this.sprite.height = 16, this.spriteItems = [], this.count = n, this.reverseFlag = r;
+	}
+	onStepFrame(e, t) {
+		if (t.scroll && (this.sprite.x--, this.sprite.x <= -8)) {
+			e.remove(this);
+			return;
+		}
+		if (this.count--, this.count <= 0) {
+			e.remove(this);
+			return;
+		}
+		Math.random() < .1 && e.entry(new N(this.sprite.x, this.sprite.y + (this.reverseFlag ? 8 : -8), this.reverseFlag));
+	}
+}, F = "#\n00,00,00000000\n0C,00,3c000000\n1C,00,003c0000\n3D,10,0000003d\n0E,10,3e000000\n1E,10,003e0000\n3B,00,0000003b\n0B,00,3b000000\n2F,10,00003f00\n1B,00,003b0000\n0F,10,3f000000\n0D,00,3d000000\n#\nbb,3f,ddddbbbc\nbd,3f,ddddbdbe\nbf,3f,ddddbfc0\nc1,3f,ddddc1c2\nc3,3f,ddddc3c4\nb1,3f,b1b2dcdc\nb3,3f,b3b4dcdc\nb5,3f,b5b6dcdc\nb7,3f,b7b8dcdc\nb9,3f,b9badcdc\n20,20,20212425\n22,20,22232627\n98,3f,9899dcdc\n9a,3f,9a9bdcdc\nad,3f,adaedcdc\n9c,3f,9c9ddcdc\n8b,3e,008b9192\n8c,3f,8c8d9394\n8e,3f,8e8f8495\n90,3d,90009685\n82,3f,82838687\n84,3f,8485af89\n80,38,00000080\n81,34,00008100\n8a,34,00008a00\nfc,3f,ddddfcfd\nfe,3f,ddddfeff\nf8,30,f8f90000\nfa,31,fafb0000\n7a,3e,007aa6a7\na7,3f,a75adcdc\n61,38,00000061\n7b,3f,7b7ca8a9\n5b,3f,5b5cdcdc\n86,3f,86877273\n7d,3f,7d7eaaab\n5d,3f,5d5edcdc\naf,3f,af896776\n7f,3f,7f33ac84\nd9,3f,d988dcdc\n8A,35,8a003000\n34,3f,3435adae\n5f,3f,5fd1dcdc\n36,3d,3600afb0\nd2,3f,d2d8dcdc\n8O,3e,00808283\n8I,3d,81008485\n9e,3e,009ea6a7\n91,3e,91929899\n9f,3f,9fa0a8a9\n8C,3f,86878c8d\n93,3f,93949a9b\na1,3f,a1a2aaab\n88,3f,88898e8f\n95,3f,8495afae\na3,3f,a3d1ac84\n8^,35,8a009000\n96,3f,96859c9d\na4,3f,5fa4adae\na5,3d,a500afb0\n8B,38,0000008b\nd4,3b,d4d500ce\nd6,3f,d6d7cfd0\nca,3f,cacbc7c8\nc5,32,00c50000\n8F,3f,8e8f8895\nd8,3f,88d8d1d2\ncc,3f,88ccdbc9\nc6,31,c6000000\n9O,3d,90005685\nD9,37,d9c9d300\ncd,31,cd000000\n", I = "[0]\n00,00,3D,00,0E,00,3D,00,0E,3B,00,00,00\n0F,00,0C,00,00,00,0C,00,00,00,00,1E,00\n00,00,0E,00,00,3B,00,00,00,00,00,0D,00\n00,00,00,2F,00,00,00,2F,00,2F,00,00,0E\n00,3B,00,00,3D,00,00,3B,00,00,0E,00,00\n00,00,00,00,0C,2F,00,00,00,00,00,1E,00\n3D,00,0E,00,00,00,0E,00,00,00,00,00,00\n00,00,00,2F,00,00,00,2F,00,00,00,00,0E\n00,00,00,00,3D,00,3D,3B,00,00,3D,00,00\n00,2F,00,00,00,00,0C,00,00,00,0C,1E,00\n0B,00,3D,00,0E,00,0E,00,00,00,1B,0D,00\n00,00,0C,00,00,00,00,2F,00,00,00,00,0E\n3D,00,00,00,0E,3B,00,00,3D,00,00,00,00\n00,2F,00,00,00,00,00,00,0C,00,00,00,0E\n3B,00,00,00,3D,00,0E,00,00,3B,00,3D,00\n00,00,00,00,00,00,00,2F,00,00,00,1E,00\n";
 //#endregion
 //#region roms/gradius/event.ts
-function N(e) {
+function L(e) {
 	let t = [];
 	for (let n of e.split("\n")) {
 		if (n.startsWith("#")) continue;
@@ -1254,23 +1505,26 @@ function N(e) {
 	}
 	return t.sort((e, t) => e.progress - t.progress), t;
 }
-var P = {};
-function F(e, t) {
-	P[e] = t;
+var R = {};
+function z(e, t) {
+	R[e] = t;
 }
-var I = class e {
+var B = class e {
 	context;
 	event;
 	eventList;
 	stageBlock;
 	nextBlock;
-	static spaceMap = v(M, _(j))[0];
+	static spaceMap = v(I, _(F))[0];
 	constructor(e, t) {
 		this.context = new u();
 		let n = e.checkPoint[0];
 		e.checkPoint.forEach((e) => {
 			e.progress <= t && (n = e);
 		}), this.eventList = e.eventList.filter((e) => e.progress >= n.progress).sort((e, t) => e.progress - t.progress), this.stageBlock = e.blockList, this.context.progress = n.progress, this.context.chrRomIndex = n.romIndex, this.nextBlock = 0;
+	}
+	nextStage(e) {
+		this.context = new u(this.context), this.eventList = e.eventList, this.stageBlock = e.blockList, this.context.chrRomIndex = e.checkPoint[0].romIndex, this.nextBlock = 0;
 	}
 	drawBlock(e, t, n) {
 		let r = e.getNameTable((t & 16) >> 4), i = (t & 15) * 2, a = this.context.blockFlags[t % 32], o = "", s = "";
@@ -1292,9 +1546,14 @@ var I = class e {
 	stepFrame(e, t, n) {
 		let r = this.context.progress >> 4;
 		for (let t = 0; t < 20; t++) r >= this.nextBlock && (this.drawBlock(e, r, this.getStageBlock(r)), this.nextBlock = r + 1), r++;
+		this.context.laserDraw = [];
 		let i = !0;
-		if (this.event && (this.event.current.execute(this.context, t, n) ? i = !this.event.wait : this.event = void 0), i) for (this.context.step(); this.eventList.length > 0 && !(this.eventList[0].progress > this.context.progress);) {
-			let e = this.eventList.splice(0, 1)[0], r = P[e.name];
+		if (this.event) {
+			if (this.event.current.execute(this.context, t, n)) i = !this.event.wait;
+			else if (this.event = void 0, this.eventList.length === 0) return !1;
+		}
+		if (i) for (this.context.step(); this.eventList.length > 0 && !(this.eventList[0].progress > this.context.progress);) {
+			let e = this.eventList.splice(0, 1)[0], r = R[e.name];
 			if (r) {
 				let i = r(e.params);
 				if (i && i.execute(this.context, t, n)) {
@@ -1307,16 +1566,22 @@ var I = class e {
 			} else console.error("Unknown Event Name", e.name);
 		}
 		else this.context.scroll = !1;
+		return !0;
 	}
 };
-F("fan", ({ y: e, count: t }) => ({ execute: (n, r, i) => {
+z("fan", ({ y: e, count: t }) => ({ execute: (n, r, i) => {
 	let a = { count: t || 4 };
-	for (let t = 0; t < a.count; t++) i.entry(new S(256 + t * 22, e, a));
+	for (let t = 0; t < a.count; t++) i.entry(new T(256 + t * 22, e, a));
 	return !1;
-} })), F("ruguru", ({ y: e }) => ({ execute: (t, n, r) => (r.entry(new w(256, e)), !1) })), F("garun", ({ y: e, pow: t }) => ({ execute: (n, r, i) => (i.entry(new T(!!t, e)), !1) })), F("dee", ({ y: e, rev: t }) => ({ execute: (n, r, i) => (i.entry(new E(e, !!t)), !1) })), F("ducker", ({ y: e, rev: t }) => ({ execute: (n, r, i) => (i.entry(new D(e, !!t)), !1) })), F("jumper", ({ y: e, pow: t }) => ({ execute: (n, r, i) => (i.entry(new O(e, !!t)), !1) })), F("dagum", ({ y: e, rev: t }) => ({ execute: (n, r, i) => (i.entry(new k(e, !!t)), !1) })), F("volcano", ({ x: e, y: t, rev: n, count: r }) => (console.log("Volcano", e, t, n, r), { execute: (t, n, i) => (t.scroll && e--, r--, r > 0) }));
+} })), z("ruguru", ({ y: e }) => ({ execute: (t, n, r) => (r.entry(new ee(256, e)), !1) })), z("garun", ({ y: e, pow: t }) => ({ execute: (n, r, i) => (i.entry(new D(!!t, e)), !1) })), z("dee", ({ y: e, rev: t, pow: n }) => ({ execute: (r, i, a) => (a.entry(new O(e, !!t, !!n)), !1) })), z("ducker", ({ y: e, rev: t }) => ({ execute: (n, r, i) => (i.entry(new k(e, !!t)), !1) })), z("jumper", ({ y: e, pow: t }) => ({ execute: (n, r, i) => (i.entry(new A(e, !!t)), !1) })), z("dagum", ({ y: e, rev: t }) => ({ execute: (n, r, i) => (i.entry(new j(e, !!t)), !1) })), z("wait", ({ count: e }) => ({ execute(t, n, r) {
+	return e--, e > 0;
+} })), z("volcano", ({ x: e, y: t, rev: n, count: r }) => ({ execute: (i, a, o) => (o.entry(new P(e, t, r, !!n)), !1) })), z("bigcore", () => {
+	let e = new w(), t = !0;
+	return { execute: (n, r, i) => (t &&= (n.chrRomIndex = 2, i.entry(e), !1), e.isAlive()) };
+});
 //#endregion
 //#region roms/gradius/data/stage1.ts
-var L = {
+var V = {
 	checkPoint: [
 		{
 			progress: 0,
@@ -1331,34 +1596,34 @@ var L = {
 			romIndex: 0
 		},
 		{
-			progress: 2048,
+			progress: 1536,
 			romIndex: 0
 		},
 		{
-			progress: 10240,
-			romIndex: 1
+			progress: 2048,
+			romIndex: 0
 		}
 	],
-	eventList: N("42,fan,y=32\n+70,fan,y=160\n+70,fan,y=32\n+70,fan,y=160\n+70,fan,y=32\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+32,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+32,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+32,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+32,fan,y=32\n+70,fan,y=160\n+70,fan,y=32\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96,pow=1\n+2,garun,y=160,pow=1\n+30,garun,y=96\n+2,garun,y=160\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n\n880,dee,y=18,rev=1\n+16,dee,y=18,rev=1\n+16,dee,y=18,rev=1\n\n+16,jumper,y=180,pow=1\n+48,jumper,y=180\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+16,ducker,y=180,rev=0\n+4,ducker,y=19,rev=1\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96,pow=1\n+2,garun,y=160,pow=1\n\n\n1168,dee,y=181,rev=0\n+16,dee,y=181,rev=0\n+32,dagum,y=165\n\n+40,jumper,y=180,pow=1\n\n+30,ducker,y=180,rev=0\n+4,ducker,y=19,rev=1\n\n+40,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n\n+20,ducker,y=19,rev=1\n+4,ducker,y=180,rev=0\n\n+40,jumper,y=180,pow=1\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+40,jumper,y=180,pow=1\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n\n\n\n\n1800,dee,y=181,rev=0\n+16,dee,y=181,rev=0\n+32,dagum,y=165\n\n\n\n1912,dee,y=18,rev=1\n+16,dee,y=18,rev=1\n+32,dagum,y=18,rev=1\n\n"),
+	eventList: L("42,fan,y=32\n+70,fan,y=160\n+70,fan,y=32\n+70,fan,y=160\n+70,fan,y=32\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+32,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+32,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+32,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+32,fan,y=32\n+70,fan,y=160\n+70,fan,y=32\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96,pow=1\n+2,garun,y=160,pow=1\n+30,garun,y=96\n+2,garun,y=160\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n\n880,dee,y=18,rev=1\n+16,dee,y=18,rev=1\n+16,dee,y=18,rev=1\n\n+16,jumper,y=180,pow=1\n+48,jumper,y=180\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+16,ducker,y=180,rev=0\n+4,ducker,y=19,rev=1\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96,pow=1\n+2,garun,y=160,pow=1\n\n\n1168,dee,y=181,rev=0\n+16,dee,y=181,rev=0\n+32,dagum,y=165\n\n+40,jumper,y=180,pow=1\n\n+30,ducker,y=180,rev=0\n+4,ducker,y=19,rev=1\n\n+40,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n\n+20,ducker,y=19,rev=1\n+4,ducker,y=180,rev=0\n\n+40,jumper,y=180,pow=1\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+20,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+40,jumper,y=180,pow=1\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n\n1800,dee,y=181,rev=0\n+16,dee,y=181,rev=0\n+32,dagum,y=165\n\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96\n+2,garun,y=160\n\n+40,jumper,y=180\n\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96,pow=1\n+2,garun,y=160,pow=1\n\n+40,ducker,y=19,rev=1,pow=1\n\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+30,ducker,y=180,rev=0\n\n2304,dee,y=18,rev=1\n+16,dee,y=18,rev=1\n+32,dagum,y=18,rev=1\n\n+30,garun,y=96\n+2,garun,y=160\n+30,garun,y=96,pow=1\n+2,garun,y=160,pow=1\n\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n+40,ruguru,y=60\n+2,ruguru,y=112\n+2,ruguru,y=162\n\n+10,ducker,y=19,rev=1,pow=1\n+30,ducker,y=180,rev=0\n+40,ducker,y=19,rev=1,pow=1\n\n2480,dee,y=181,rev=0\n+16,dee,y=181,rev=0,pow=1\n+32,dagum,y=165\n\n+60,jumper,y=180\n+30,jumper,y=180\n+30,jumper,y=180\n+30,jumper,y=180,pow=1\n+30,jumper,y=180\n\n3072,volcano,x=56,y=156,count=900\n3072,volcano,x=184,y=156,count=900\n3072,*wait,count=900\n\n3328,*bigcore\n"),
 	blockList: y([{
-		charmap: j,
+		charmap: F,
 		stage: "[64]\nbb,00,3D,00,0E,00,3D,00,0E,3B,00,00,b1\nbd,00,0C,00,00,00,0C,00,00,00,00,00,b3\nbf,00,0E,00,00,3B,00,00,00,00,00,00,b5\nc1,00,00,2F,00,00,00,2F,00,2F,00,0B,b7\nc3,3B,00,00,3D,00,00,3B,00,00,0E,1B,b9\nbf,00,00,00,0C,2F,00,00,00,00,00,00,b5\nc1,00,0E,00,00,00,0E,00,00,00,00,00,b7\nc3,00,00,2F,00,00,00,2F,00,00,00,00,b9\nbf,00,00,00,3D,00,3D,3B,00,00,3D,20,b5\nc1,2F,00,00,00,00,0C,00,00,00,0C,22,b7\nc3,00,3D,00,0E,00,0E,00,00,00,1B,8b,98\nbf,00,0C,00,00,00,00,2F,00,80,82,8c,9a\nc1,00,00,00,0E,3B,00,00,3D,81,84,8e,ad\nc3,2F,00,00,00,00,00,00,0C,00,8a,90,9c\nbf,3B,00,00,3D,00,0E,00,00,3B,00,20,b9\nc1,00,00,00,00,00,00,2F,00,00,00,22,b5\nc1,00,3D,00,0E,00,3D,00,0E,3B,00,20,b5\nc3,00,0C,00,00,00,0C,00,00,00,00,22,b7\nfc,f8,1C,00,00,3B,00,00,00,00,00,20,b9\nfe,fa,00,2F,00,00,00,2F,00,2F,00,22,b5\nbf,00,00,00,3D,00,00,00,00,00,0E,20,b5\nc1,00,00,00,0C,2F,00,00,00,00,00,22,b7\nc3,00,0E,00,00,00,0E,00,00,3B,00,20,b9\nbf,00,00,2F,00,00,00,2F,00,00,00,22,b5\nc1,00,00,00,3D,00,3D,3B,00,00,3D,00,b5\nc3,2F,00,00,0C,00,0C,00,00,00,0C,0C,b7\nbf,00,3D,00,0E,00,0E,00,00,00,0E,1B,b9\nc1,00,0C,00,00,00,00,2F,00,00,00,00,b5\nc3,00,00,00,0E,3B,00,00,3D,00,00,00,b7\nbf,2F,00,00,00,00,00,00,0C,2F,00,0B,b9\nc1,3B,00,00,3D,00,0E,00,00,3B,00,00,b5\nc3,00,00,00,0C,00,00,2F,00,00,00,0B,b7\nc3,00,3D,00,0E,00,3D,00,0E,3B,00,00,b5\nbf,00,0C,00,00,00,0C,00,00,00,00,00,b7\nc1,00,0E,00,00,3B,00,00,00,00,00,00,b9\nc3,00,00,2F,00,00,00,2F,00,2F,00,0B,b5\nbf,3B,00,00,3D,00,00,3B,00,00,0E,1B,b7\nc1,00,00,00,0C,2F,00,00,00,00,00,00,b7\nc3,00,0E,00,00,00,0E,00,00,00,00,00,b5\nbf,00,00,2F,00,00,00,2F,00,00,00,00,b7\nc1,00,00,00,3D,00,3D,3B,00,00,3D,20,b5\nc3,2F,00,00,00,00,0C,00,00,00,0C,22,b7\nbf,00,3D,00,0E,00,0E,00,00,00,0E,20,b9\nc1,00,0C,00,00,00,00,2F,00,00,00,22,b5\nc3,00,00,00,0E,3B,00,00,3D,00,00,7a,a7\nbf,2F,00,00,00,00,00,00,0C,61,00,7b,5b\nc1,3B,00,00,3D,00,0E,00,8O,86,00,7d,5d\nc3,00,00,00,00,00,00,00,8I,af,00,7f,d9\nbf,00,3D,00,0E,00,3D,00,0E,8A,00,34,5f\nc1,00,0C,00,00,00,0C,00,00,00,00,36,d2\nc3,00,0E,00,00,3B,00,00,00,00,00,20,b5\nbf,00,00,2F,00,00,00,2F,00,2F,00,22,b7\nc1,3B,00,00,3D,00,00,3B,00,00,0E,20,b9\nc3,00,00,00,0C,2F,00,00,00,00,00,22,b5\nbf,00,0E,00,00,00,0E,00,00,00,00,00,b9\nc1,00,00,2F,00,00,00,2F,00,00,00,00,b5\nc3,00,00,00,3D,00,3D,3B,00,00,3D,00,b7\nbf,2F,00,00,00,00,0C,00,00,00,0C,1E,b9\nc1,00,3D,00,0E,00,0E,00,00,00,1B,0D,b5\nc3,00,0C,00,00,00,00,2F,00,00,00,00,b7\nbf,00,00,00,0E,3B,00,00,3D,00,00,00,b9\nc1,2F,00,00,00,00,00,00,0C,00,00,00,b5\nc3,00,00,00,3D,00,0E,00,00,3B,00,3D,b7\nbf,00,00,00,00,00,00,2F,00,00,00,1E,b9\n\nc1,00,3D,00,0E,00,3D,00,0E,3B,00,00,b5\nc3,00,0C,00,00,00,0C,00,00,00,00,1E,b7\nfc,f8,0E,00,00,3B,00,00,00,00,00,0D,b9\nfe,fa,00,2F,00,00,00,2F,00,2F,00,00,b5\nbf,3B,00,00,3D,00,00,3B,00,00,0E,00,b7\nc1,00,00,00,0C,2F,00,00,00,00,00,1E,b9\nc3,00,0E,00,00,00,0E,00,00,00,00,20,b5\nbf,00,00,2F,00,00,00,2F,00,00,00,22,b7\nc1,00,00,00,3D,00,3D,3B,00,00,3D,20,b9\nc3,2F,00,00,00,00,0C,00,00,00,0C,22,b5\nbf,00,3D,00,0E,00,0E,00,00,00,1B,9e,a7\nc1,00,0C,00,00,00,00,2F,00,8B,91,9f,5b\nc3,00,00,00,0E,3B,00,00,8O,8C,93,a1,5d\nbf,2F,00,00,00,00,00,00,8I,88,95,a3,d9\nc1,00,00,00,3D,00,0E,00,00,8^,96,a4,5f\nc3,00,00,00,00,00,00,2F,00,00,00,a5,d2\n\nbf,00,3D,00,0E,00,3D,00,0E,3B,00,20,b5\nc1,00,0C,00,00,00,0C,00,00,00,00,22,b7\nc3,00,0E,00,00,3B,00,00,00,00,00,20,b9\nbf,00,00,2F,00,00,00,2F,00,2F,00,22,b5\nc1,3B,00,00,3D,00,00,3B,00,00,0E,20,b5\nc3,00,00,00,0C,2F,00,00,00,00,00,22,b7\nbf,00,0E,00,00,00,0E,00,00,00,00,20,b9\nc1,00,00,2F,00,00,00,2F,00,00,00,22,b5\nc3,00,00,00,3D,00,3D,3B,00,00,3D,20,b5\nbf,2F,00,00,00,00,0C,00,00,00,0C,22,b7\nc1,00,3D,00,0E,00,0E,00,00,00,0E,20,b9\nc3,00,0C,00,00,00,00,2F,00,00,00,22,b5\nbf,00,00,00,0E,3B,00,00,3D,00,00,20,b5\nc1,2F,00,00,00,00,00,00,0C,00,00,22,b7\nc3,00,00,00,3D,00,0E,00,00,3B,00,20,b9\nbf,00,00,00,00,00,00,2F,00,00,00,22,b5\n\nc1,00,3D,00,0E,00,3D,00,0E,3B,00,20,b5\nc3,00,0C,00,00,00,0C,00,00,00,00,22,b7\nfc,f8,0E,00,00,3B,00,00,00,00,00,20,b9\nfe,fa,00,2F,00,00,00,2F,00,2F,00,22,b5\nbf,3B,00,00,3D,00,00,3B,00,00,0E,20,b5\nc1,00,00,00,0C,2F,00,00,00,00,00,22,b7\nc3,00,0E,00,00,00,0E,00,00,00,00,20,b9\nbf,00,00,2F,00,00,00,2F,00,00,00,22,b5\nc1,00,00,00,3D,00,3D,3B,00,00,3D,00,b5\nc3,2F,00,00,00,00,0C,00,00,00,0C,1E,b7\nbf,00,3D,00,0E,00,0E,00,00,00,1B,0D,b9\nc1,00,0C,00,00,00,00,2F,00,00,00,00,b5\nc3,00,00,00,0E,3B,00,00,3D,00,00,00,b7\nbf,2F,00,00,00,00,00,00,0C,00,00,00,b9\nc1,00,00,00,3D,00,0E,00,00,3B,00,3D,b5\nc3,00,00,00,00,00,00,2F,00,00,00,1E,b7\n\nbf,00,3D,00,0E,00,3D,00,0E,3B,00,00,b9\nc1,00,0C,00,00,00,0C,00,00,00,00,1E,b5\nc3,00,0E,00,00,8b,d4,00,00,00,00,0D,b7\nbf,00,00,80,82,8c,d6,ca,c5,2F,00,00,b9\nc1,3B,00,81,84,8F,d8,cc,c6,00,0E,00,b5\nc3,00,00,00,8a,9O,D9,cd,00,00,00,1E,b7\nbf,00,0E,00,00,00,0E,00,00,00,00,00,b9\nc1,00,00,2F,00,00,00,2F,00,00,00,00,b5\nc3,00,00,00,3D,00,3D,3B,00,00,3D,00,b7\nbf,2F,00,00,00,00,0C,00,00,00,0C,1E,b9\nc1,00,3D,00,0E,00,0E,00,00,00,1B,0D,b5\nc3,00,0C,00,00,00,00,2F,00,00,00,00,b7\nbf,00,00,00,0E,3B,00,00,3D,00,00,20,b5\nc1,2F,00,00,00,00,00,00,0C,00,00,22,b7\nc3,00,00,00,3D,00,0E,00,00,3B,00,20,b9\nbf,00,00,00,00,00,00,2F,00,00,00,22,b5\n\nc1,00,3D,00,0E,00,3D,00,0E,3B,00,20,b5\nc3,00,0C,00,00,00,0C,00,00,00,00,22,b7\nbf,00,0E,00,00,3B,00,00,00,00,00,8b,98\nc1,00,00,2F,00,00,00,2F,00,80,82,8c,9a\nc3,3B,00,00,3D,00,00,3B,00,81,84,8e,ad\nbf,00,00,00,0C,2F,00,00,00,00,8a,90,9c\nc1,00,0E,00,00,00,0E,00,00,00,00,20,b9\nc3,00,00,2F,00,00,00,2F,00,00,00,22,b5\nbf,00,00,00,3D,00,3D,3B,00,00,3D,20,b5\nc1,2F,00,00,00,00,0C,00,00,00,0C,22,b7\nc3,00,3D,00,0E,00,0E,00,00,00,00,8b,98\nbf,00,0C,00,00,00,00,2F,00,80,82,8c,9a\nc1,00,00,00,0E,3B,00,00,3D,81,84,8e,ad\nc3,2F,00,00,00,00,00,00,0C,00,8a,90,9c\nc3,00,00,00,3D,00,0E,00,00,3B,00,20,b9\nbf,00,00,00,00,00,00,2F,00,00,00,22,b5\n",
 		abstract: !0
 	}, {
-		charmap: j,
-		stage: M
+		charmap: F,
+		stage: I
 	}])
-}, R = 16, z = 12, B = {
+}, H = 16, U = 12, W = {
 	NORMAL: 1,
 	MISSLE: 2,
 	DOUBLE: 4,
 	LASER: 8
-}, V = {
+}, G = {
 	Top: 256,
 	Left: 128,
 	Right: 3712,
 	Bottom: 3072
-}, H = class {
+}, K = class {
 	sprite;
 	flag;
 	normal = [];
@@ -1374,7 +1639,7 @@ var L = {
 	hitCallback = {};
 	prefix;
 	constructor(e) {
-		this.prefix = e, this.flag = B.NORMAL, this.clock = 0, this.sprite = {
+		this.prefix = e, this.flag = W.NORMAL, this.clock = 0, this.sprite = {
 			x: 0,
 			y: 0,
 			horizontalFlip: !1,
@@ -1458,7 +1723,7 @@ var L = {
 			}, () => (e.x2 = 256, !0))), r;
 		}), this.laser = this.laser.filter((n, r) => {
 			n.dx += 8;
-			let i = t.x + n.dx, a = Math.max(t.x + 8, i - R);
+			let i = t.x + n.dx, a = Math.max(t.x + 8, i - H);
 			return a >= 256 ? !1 : (e.addLaserDraw({
 				y: t.y,
 				lines: [{
@@ -1488,21 +1753,21 @@ var L = {
 		this.clock++, t || (this.pushCount = {
 			normal: 0,
 			missle: 0
-		}), t && (this.flag & B.NORMAL && ((this.pushCount.normal === 0 || this.pushCount.normal > 30) && this.normal.length < 2 && (this.normal.push({
+		}), t && (this.flag & W.NORMAL && ((this.pushCount.normal === 0 || this.pushCount.normal > 30) && this.normal.length < 2 && (this.normal.push({
 			x: n.x,
 			y: n.y
-		}), this.pushCount.normal = 0), this.pushCount.normal++), this.flag & B.MISSLE && ((this.pushCount.missle === 0 || this.pushCount.missle > 40) && this.missle.length < 1 && (this.missle.push({
-			x: n.x,
+		}), this.pushCount.normal = 0), this.pushCount.normal++), this.flag & W.MISSLE && ((this.pushCount.missle === 0 || this.pushCount.missle > 40) && this.missle.length < 1 && (this.missle.push({
+			x: n.x + 8,
 			y: n.y,
 			dir: 1
-		}), this.pushCount.missle = 0), this.pushCount.missle++), this.flag & B.DOUBLE && ((this.pushCount.normal === 0 || this.pushCount.normal > 30) && this.double.length < 2 && (this.double.push({
+		}), this.pushCount.missle = 0), this.pushCount.missle++), this.flag & W.DOUBLE && ((this.pushCount.normal === 0 || this.pushCount.normal > 30) && this.double.length < 2 && (this.double.push({
 			x1: n.x,
 			y1: n.y,
 			x2: n.x,
 			y2: n.y
-		}), this.pushCount.normal = 0), this.pushCount.normal++), this.flag & B.LASER && (this.laser.length === 0 || this.laser[0].dx >= 32) && (this.pushCount.normal < z ? (this.laser = [{ dx: 16 }, ...this.laser], this.pushCount.normal++) : this.pushCount.normal > 36 ? this.pushCount.normal = 0 : this.pushCount.normal++)), this.moveStep(e, n);
+		}), this.pushCount.normal = 0), this.pushCount.normal++), this.flag & W.LASER && (this.laser.length === 0 || this.laser[0].dx >= 32) && (this.pushCount.normal < U ? (this.laser = [{ dx: 16 }, ...this.laser], this.pushCount.normal++) : this.pushCount.normal > 36 ? this.pushCount.normal = 0 : this.pushCount.normal++)), this.moveStep(e, n);
 	}
-}, U = class {
+}, q = class {
 	trace;
 	child;
 	limit;
@@ -1521,7 +1786,7 @@ var L = {
 	set(e) {
 		this.trace.length > 0 && (e.x = this.trace[this.trace.length - 1].x, e.y = this.trace[this.trace.length - 1].y);
 	}
-}, W = class {
+}, J = class {
 	trace;
 	position;
 	sprite;
@@ -1539,13 +1804,13 @@ var L = {
 	}
 	addOption(e) {
 		if (this.trace.length >= 4) return;
-		let t = new U(12);
+		let t = new q(12);
 		this.trace.length > 0 ? this.trace[this.trace.length - 1].addChild(t) : this.parent.addChild(t);
 		let n = {
 			x: 0,
 			y: 0
 		};
-		t.set(n), this.position.push(n), this.trace.push(t), this.missle.push(new H("option" + this.missle.length + "_")), e.push(this.missle[this.missle.length - 1].sprite);
+		t.set(n), this.position.push(n), this.trace.push(t), this.missle.push(new K("option" + this.missle.length + "_")), e.push(this.missle[this.missle.length - 1].sprite);
 	}
 	step(e, t) {
 		this.clock++;
@@ -1572,7 +1837,7 @@ var L = {
 		}
 		this.clock & 1 ? this.sprite.items = [...r, ...i] : this.sprite.items = [...i, ...r];
 	}
-}, G = class {
+}, Y = class {
 	sprite;
 	missle;
 	trace;
@@ -1585,17 +1850,22 @@ var L = {
 	powerLevel = 0;
 	barrierCount = 0;
 	missCount = 0;
-	constructor() {
+	stepCount = 0;
+	constructor(e = !1) {
 		this.sprite = {
 			x: this.position.x >> 4,
 			y: this.position.y >> 4,
 			horizontalFlip: !1,
 			verticalFlip: !1,
 			items: s
-		}, this.missle = new H("player_"), this.trace = new U(12), this.trace.add(this.sprite.x, this.sprite.y), this.options = new W(this.trace);
+		}, this.missle = new K("player_"), this.trace = new q(12), this.trace.add(this.sprite.x, this.sprite.y), this.options = new J(this.trace), e && (this.powerLevel = 1);
 	}
 	initSprite(e) {
 		e.push(this.sprite, this.missle.sprite, this.options.sprite, ...this.options.missle.map((e) => e.sprite));
+	}
+	fullPower(e) {
+		for (this.barrierCount = 5; this.options.trace.length < 2;) this.options.addOption(e);
+		this.position.speed == 16 && (this.position.speed += 8), this.missle.flag |= W.MISSLE;
 	}
 	powerUp(e) {
 		if (this.getCupsuleFlag() & 1 << this.powerLevel - 1) {
@@ -1604,13 +1874,13 @@ var L = {
 					this.position.speed += 8;
 					break;
 				case 2:
-					this.missle.flag |= B.MISSLE;
+					this.missle.flag |= W.MISSLE;
 					break;
 				case 3:
-					this.missle.flag |= B.DOUBLE, this.missle.flag &= ~(B.NORMAL | B.LASER);
+					this.missle.flag |= W.DOUBLE, this.missle.flag &= ~(W.NORMAL | W.LASER);
 					break;
 				case 4:
-					this.missle.flag &= ~(B.NORMAL | B.DOUBLE), this.missle.flag |= B.LASER;
+					this.missle.flag &= ~(W.NORMAL | W.DOUBLE), this.missle.flag |= W.LASER;
 					break;
 				case 5:
 					this.options.addOption(e);
@@ -1623,7 +1893,7 @@ var L = {
 		}
 	}
 	stepFrame(t, n, r) {
-		if (this.missCount > 0) {
+		if (this.stepCount++, this.missCount > 0) {
 			this.missCount++, this.missle.step(t, !1, {
 				x: this.sprite.x,
 				y: this.sprite.y + 6
@@ -1632,7 +1902,7 @@ var L = {
 			return this.options.missle.forEach((t) => e.push(...t.hitTest)), e;
 		}
 		let i = !1, a = this.position.speed;
-		this.powerLevel > 0 && n.isPush(e.B) && this.powerUp(r), n.isDown(e.DOWN) ? (this.sprite.items = l, this.position.y < V.Bottom && (this.position.y += a, this.position.y > V.Bottom && (this.position.y = V.Bottom)), i = !0) : n.isDown(e.UP) ? (this.sprite.items = c, this.position.y > V.Top && (this.position.y -= a, this.position.y < V.Top && (this.position.y = V.Top)), i = !0) : this.sprite.items = s, n.isDown(e.LEFT) ? (this.position.x > V.Left && (this.position.x -= a, this.position.x < V.Left && (this.position.x = V.Left)), i = !0) : n.isDown(e.RIGHT) && (this.position.x < V.Right && (this.position.x += a, this.position.x > V.Right && (this.position.x = V.Right)), i = !0), this.sprite.x = this.position.x >> 4, this.sprite.y = this.position.y >> 4, i && this.trace.add(this.sprite.x, this.sprite.y), this.missle.step(t, n.isDown(e.A) > 0, {
+		this.powerLevel > 0 && n.isPush(e.B) && this.powerUp(r), n.isDown(e.DOWN) ? (this.sprite.items = l, this.position.y < G.Bottom && (this.position.y += a, this.position.y > G.Bottom && (this.position.y = G.Bottom)), i = !0) : n.isDown(e.UP) ? (this.sprite.items = c, this.position.y > G.Top && (this.position.y -= a, this.position.y < G.Top && (this.position.y = G.Top)), i = !0) : this.sprite.items = s, n.isDown(e.LEFT) ? (this.position.x > G.Left && (this.position.x -= a, this.position.x < G.Left && (this.position.x = G.Left)), i = !0) : n.isDown(e.RIGHT) && (this.position.x < G.Right && (this.position.x += a, this.position.x > G.Right && (this.position.x = G.Right)), i = !0), this.sprite.x = this.position.x >> 4, this.sprite.y = this.position.y >> 4, i && this.trace.add(this.sprite.x, this.sprite.y), this.missle.step(t, n.isDown(e.A) > 0, {
 			x: this.sprite.x,
 			y: this.sprite.y + 6
 		}), this.options.step(t, n.isDown(e.A) > 0);
@@ -1659,9 +1929,9 @@ var L = {
 	}
 	getCupsuleFlag() {
 		let e = 15;
-		return this.missle.flag & B.MISSLE && (e &= -3), this.missle.flag & B.DOUBLE && (e &= -5), this.missle.flag & B.LASER && (e &= -9), this.options.trace.length < 4 && (e |= 16), this.barrierCount === 0 && (e |= 32), e;
+		return this.missle.flag & W.MISSLE && (e &= -3), this.missle.flag & W.DOUBLE && (e &= -5), this.missle.flag & W.LASER && (e &= -9), this.options.trace.length < 4 && (e |= 16), this.barrierCount === 0 && (e |= 32), e;
 	}
-}, K = {
+}, X = {
 	speed: [
 		9,
 		10,
@@ -1704,7 +1974,7 @@ var L = {
 		30,
 		31
 	]
-}, q = class t {
+}, Z = class t {
 	player;
 	spriteGroup = [];
 	event;
@@ -1713,8 +1983,9 @@ var L = {
 	bomber;
 	pauseFlag;
 	stageData;
+	secret;
 	constructor(e, t, n = 0) {
-		this.player = e, this.stageData = t, this.event = new I(t, n), this.enemy = new x(), this.cupsule = new f(), this.bomber = new m(), this.pauseFlag = !1;
+		this.player = e, this.stageData = t, this.event = new B(t, n), this.enemy = new S(), this.cupsule = new f(), this.bomber = new m(), this.pauseFlag = !1, this.secret = [];
 	}
 	onEnter(e, t) {
 		e.ppu.setControllData({
@@ -1722,10 +1993,14 @@ var L = {
 			spriteEnabled: !0,
 			nameTableIndex: 0
 		});
-		for (let t = 2; t < 3; t++) {
+		for (let t = 0; t < 3; t++) {
 			let t = e.ppu.getNameTable(0);
-			for (let e = 0; e < 32; e++) t.write(e, 0);
+			for (let e = 0; e < 1008; e++) t.write(e, 0);
 		}
+		for (let t = 0; t < 64; t++) e.ppu.setSpriteData({
+			index: t,
+			y: 239
+		});
 		this.spriteGroup = [
 			this.cupsule.sprite,
 			this.bomber.sprite,
@@ -1774,20 +2049,21 @@ var L = {
 		this.drawPower(n, 0, "speed", !1), this.drawPower(n, 1, "missle", !1), this.drawPower(n, 2, "double", !1), this.drawPower(n, 3, "laser", !1), this.drawPower(n, 4, "option", !1), this.drawPower(n, 5, "shield", !1), this.drawScore(n);
 	}
 	drawPower(e, t, n, r) {
-		e.print(4 + t * 4, 28, K[n]), e.setColor(4 + t * 4, 28, +!!r), e.setColor(6 + t * 4, 28, +!!r);
+		e.print(4 + t * 4, 28, X[n]), e.setColor(4 + t * 4, 28, +!!r), e.setColor(6 + t * 4, 28, +!!r);
 	}
 	drawScore(e) {
 		let t = "   @ 1  1P " + new String(this.event.context.score).padStart(7, "0") + "  HI " + new String(this.event.context.hiScore).padStart(7, "0") + "  ";
 		e.print(0, 29, a(h, t));
 	}
 	onUpdate(n, r) {
+		if (r < 8) return;
 		let i = n.getPad(0), a = 0;
 		if (!this.pauseFlag) {
-			if (this.player.missCount > 240) {
-				n.moveMode(new t(new G(), this.stageData, this.event.context.progress));
+			if (this.player.missCount > 200) {
+				n.moveMode(new t(new Y(this.player.powerLevel > 0), this.stageData, this.event.context.progress));
 				return;
 			}
-			this.event.stepFrame(n.ppu, this.player, this.enemy);
+			this.event.stepFrame(n.ppu, this.player, this.enemy) || (this.event.nextStage(this.stageData), this.event.stepFrame(n.ppu, this.player, this.enemy));
 			let e = this.player.stepFrame(this.event.context, i, this.spriteGroup);
 			this.event.context.playerPos = {
 				x: this.player.sprite.x,
@@ -1829,12 +2105,24 @@ var L = {
 		for (let e = 0; e < 32; e += 2) l.setColor(e, 29, 0);
 		for (let e = 0; e < s.length; e++) this.drawPower(l, e, c & 1 << e ? s[e] : "space", this.player.powerLevel === e + 1);
 		if (this.event.context.draw(n.ppu), this.pauseFlag) {
-			i.isPush(e.START) && (this.pauseFlag = !1);
+			let t = i.isPush(255);
+			t && (t & e.START ? this.pauseFlag = !1 : this.secret.length > 0 && (t === this.secret[0] ? (this.secret.splice(0, 1), this.secret.length === 0 && this.player.fullPower(this.spriteGroup)) : this.secret = []));
 			return;
 		}
-		r & 127 || this.cupsule.addCupsule(256, Math.floor(Math.random() * 144) + 24), a > 0 && (this.event.context.score += a, this.event.context.score > this.event.context.hiScore && (this.event.context.hiScore = this.event.context.score), this.drawScore(n.ppu.getNameTable(0))), i.isPush(e.START) && (this.pauseFlag = !0);
+		this.event.context.scroll && this.event.context.progress & 63, a > 0 && (this.event.context.score += a, this.event.context.score > this.event.context.hiScore && (this.event.context.hiScore = this.event.context.score), this.drawScore(n.ppu.getNameTable(0))), i.isPush(e.START) && (this.pauseFlag = !0, this.secret = [
+			e.UP,
+			e.UP,
+			e.DOWN,
+			e.DOWN,
+			e.LEFT,
+			e.RIGHT,
+			e.LEFT,
+			e.RIGHT,
+			e.B,
+			e.A
+		]);
 	}
-}, J = [
+}, Q = [
 	[
 		128,
 		129,
@@ -1975,7 +2263,7 @@ var L = {
 		188,
 		155
 	]
-], Y = {
+], $ = {
 	...i(0, " GAMEOVRLYSCTDKNHI"),
 	...i(28, "UW'X"),
 	...i(48, "0123456789"),
@@ -1984,7 +2272,7 @@ var L = {
 	Z: 190,
 	"!": 191,
 	B: 198
-}, X = class {
+}, te = class {
 	scrollX = 255;
 	onEnter(e, t) {
 		this.scrollX = 255, r[3].set(0), e.ppu.setControllData({
@@ -1998,12 +2286,12 @@ var L = {
 		}
 		let n = e.ppu.getNameTable(0);
 		n.print(12, 4, ["ÀÁ\0\0\0\0À", "ÐÑÒÓÐÑÒÓ"]), n.setColor(16, 4, 1).setColor(18, 4, 1);
-		for (let e = 0; e < J.length; e++) {
-			let t = J[e];
+		for (let e = 0; e < Q.length; e++) {
+			let t = Q[e];
 			n.print(e + 1, e + 8, t);
 			for (let r = 0; r < t.length; r++) n.setColor(e + 1 + r, e + 8, 3);
 		}
-		n.print(9, 15, a(Y, "@ KONAMI 1986")), n.print(10, 20, a(Y, "PLAY. SELECT")), n.print(13, 22, a(Y, "1 PLAYER")), n.print(13, 24, a(Y, "2 PLAYER")), e.ppu.getPalette().writeBytes(0, new Uint8Array([
+		n.print(9, 15, a($, "@ KONAMI 1986")), n.print(10, 20, a($, "PLAY. SELECT")), n.print(13, 22, a($, "1 PLAYER")), n.print(13, 24, a($, "2 PLAYER")), e.ppu.getPalette().writeBytes(0, new Uint8Array([
 			15,
 			48,
 			48,
@@ -2050,7 +2338,7 @@ var L = {
 			}])), t.ppu.setScroll(this.scrollX, 0);
 			return;
 		}
-		r.isPush(e.START) && t.moveMode(new q(new G(), L));
+		r.isPush(e.START) && t.moveMode(new Z(new Y(), V));
 	}
 };
 n("グラディウス")(class {
@@ -2067,7 +2355,7 @@ n("グラディウス")(class {
 			bgClippingDisabled: !1,
 			spritePatternTableIndex: 1,
 			spriteClippingDisabled: !1
-		}), e.pushMode(new X());
+		}), e.pushMode(new te());
 	}
 });
 //#endregion
